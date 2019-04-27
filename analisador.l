@@ -45,15 +45,13 @@ NOVA_LINHA "\n"|"\r\n"
 CARACTERES_ESPECIAIS {NOVA_LINHA}|" "|"\r"|"\t"|"\s"
 
 COMENTARIO_LINHA "{"[^}\n]*"}"
-COMENTARIO_LINHAS "/*"([^\*]|"*"[^/])*"*/"
 
 SIMBOLO_RESERVADO "<>"|">="|"<="|">"|"<"|":="|"="|"+"|"\-"|"*"|"/"|";"|"."|":"|","|"("|")"
 
 IDENT_CARACTERES_NAO_PERMITIDOS [^0-9a-zA-Z"<>"">=""<="">""<"":=""=""+""\-""*""/"";""."":"",""("")"" ""\r""\t""\s""\n"|"\r\n"]
 ERRO_IDENTIFICADOR_MAL_FORMADO ({IDENT}{IDENT_CARACTERES_NAO_PERMITIDOS}+({LETRA}|{NUMERO}|_)+)|({NUMERO}+({LETRA}|_)+)
 
-ERRO_COMENTARIO_LINHA_MAL_FORMADO  ("{"[^}\n]*"\n"[^}]*"}")|"{"[^}]*
-ERRO_COMENTARIO_LINHAS_MAL_FORMADO  "/*"([^\*]|"*"[^/])*
+ERRO_COMENTARIO_LINHA_MAL_FORMADO  ("{"[^}\n]*"\n"[^}]*"}")|"{"[^}\n]*
 
 NUMERO_CARACTERES_NAO_PERMITIDOS [^0-9"<>"">=""<="">""<""=""+""\-""*""/""."",""("")"" ""\r""\t""\s""\n"|"\r\n"]
 ERRO_NUMERO_INTEIRO_MAL_FORMADO {NUMERO}+{NUMERO_CARACTERES_NAO_PERMITIDOS}+{NUMERO}+
@@ -64,7 +62,6 @@ ERRO_NUMERO_REAL_MAL_FORMADO ({NUMERO}+{NUMERO_CARACTERES_NAO_PERMITIDOS}+"."{NU
 {COMENTARIO_LINHA} {}
 
 {ERRO_COMENTARIO_LINHA_MAL_FORMADO} {errorFunc("Comentario mal formado.", yytext); checkCommentaryLines(yytext);}
-{ERRO_COMENTARIO_LINHAS_MAL_FORMADO} {errorFunc("Comentario mal formado.", yytext); checkCommentaryLines(yytext);}
 
 {NOVA_LINHA} {nLines++;}
 
