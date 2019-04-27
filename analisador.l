@@ -122,11 +122,12 @@ void countingsort(char *vec, int len){
 		count[j]--;
 	}
 
+	delete count;
 }
   
 long int hashKey(const char *word){
 	int i, len;
-	char *str = (char *) malloc (sizeof(char)*(strlen(word)+1));
+	char *str = new char[strlen(word)];
 	double sum = 0;
 	long int key;
 
@@ -139,8 +140,8 @@ long int hashKey(const char *word){
 	for (i = 0; i < len; i++)
 			sum += pow(27,len-(i+1)) * str[i];
 
-	free(str);
-
+	delete str;
+	
 	key = sum;
 	key = key % 128;
 
