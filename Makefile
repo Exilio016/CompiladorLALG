@@ -4,4 +4,4 @@ lex:
 	flex analisador.l
 
 compile: lex
-	gcc -g lex.yy.c -o comp -lfl
+	g++ -g lex.yy.c -o comp -lfl
