@@ -27,7 +27,7 @@ void errorFunc(string errorString, string errorVar); //exibir erro
 
 bool checkReservedWord(string s); //checar se eh uma palavra reservada
 
-void checkCommentaryLines(string commentaryString); //checa a quantidade de "\n"s no comentario de varias linhas (para nao perder a contagem de linhas)
+void checkCommentaryLines(string commentaryString); //checa a quantidade de "\n"s no comentario com erro (para nao perder a contagem de linhas)
 
 bool checkIdentSize(string s, int identSize); //checar os tamanhos dos identificadores
 bool checkNumberSize(string numberString, string numberType, int numberSize); //c'hecar os tamanhos dos numeros
@@ -193,7 +193,7 @@ bool checkNumberSize(string numberString, string numberType, int numberSize){
 			return false;
 		}
 	}else if(numberType.compare("real") == 0){
-		if(numberSize > MAX_INT){
+		if(numberSize > 2*MAX_INT){
 			errorFunc("Numero real muito grande.", numberString); 
 			return false;
 		}
