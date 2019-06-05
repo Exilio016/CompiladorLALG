@@ -5,10 +5,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
-
 #include <iostream>
 #include <string>
 #include <math.h>
+
+#include "y.tab.h"
 
 using namespace std;
 
@@ -17,20 +18,27 @@ int MAX_INT = to_string(INT_MAX).length(); //tamanho maximo de um numero inteiro
 
 int nLines = 1; //(comecar na linha 1) -> para mostrar o numero de linhas correto ao usuario
 int nErrors = 0;
-string token;
+int token;
 
-string reservedWords[128];
+typedef struct {
+	string word;
+	int token;
+} hash_t;
+
+hash_t reservedWords[128];
 
 void initReservedWords();
 
 void errorFunc(string errorString, string errorVar); //exibir erro
 
-bool checkReservedWord(string s); //checar se eh uma palavra reservada
+bool checkReservedWord(string s, int *token); //checar se eh uma palavra reservada
 
 void checkCommentaryLines(string commentaryString); //checa a quantidade de "\n"s no comentario com erro (para nao perder a contagem de linhas)
 
 bool checkIdentSize(string s, int identSize); //checar os tamanhos dos identificadores
 bool checkNumberSize(string numberString, string numberType, int numberSize); //c'hecar os tamanhos dos numeros
+
+int toToken(string token);
 
 %}
 
@@ -71,32 +79,45 @@ ERRO_NUMERO_REAL_MAL_FORMADO ({NUMERO}+{NUMERO_CARACTERES_NAO_PERMITIDOS}+"."{NU
 {ERRO_NUMERO_INTEIRO_MAL_FORMADO} {errorFunc("Numero inteiro mal formado.", yytext);}
 
 {NUMERO_INTEIRO} { 	if(checkNumberSize(yytext, "integer", yyleng)){
-						token = "NUMERO_INTEIRO";  return 0;
+						return NUMERO_INTEIRO;
 					}
 				 } 
 {NUMERO_REAL} { if(checkNumberSize(yytext, "real", yyleng)){
-					token = "NUMERO_REAL";  return 0;
+					return NUMERO_REAL;
 				}
 			  }
 
-{SIMBOLO_RESERVADO} {token = yytext;  return 0;}
+{SIMBOLO_RESERVADO} { return toToken(yytext);}
 
 {ERRO_IDENTIFICADOR_MAL_FORMADO} {errorFunc("Identificador mal formado.", yytext);}
 
 {IDENT} {	if(checkIdentSize(yytext, yyleng)){
-				if(checkReservedWord(yytext)){
-					token = yytext;  return 0;
+				if(checkReservedWord(yytext, &token)){
+					return token;
 				}else{
-					token = "IDENT";  return 0;
+					return IDENT;
 				}
 			}
 		}
 
-<<EOF>> { token = "EOF";	return 0;}
-
 . {errorFunc("Caractere invalido.", yytext);} 
 
 %%
+
+int toToken(string token){
+	if(token.length() == 1)
+		return token.c_str()[0];
+
+		if (token.compare("<>") == 0) 
+			return DIF;
+		if (token.compare("<=") == 0)
+			return MENOR_IGUAL;
+		if (token.compare("<=") == 0)
+			return MAIOR_IGUAL;
+		if (token.compare(":=") == 0)
+			return ATRIB;
+}
+
 void countingsort(char *vec, int len){
 	int min, max, j;
 	max = vec[0];
@@ -149,14 +170,70 @@ long int hashKey(const char *word){
 }
 
 void initReservedWords(){
-	string vec[16] = {"program", "begin", "end", "const", "var", "real", "integer", "procedure", "else", "read", "write", "while", "do", "if", "then", "for"};
-	memset(reservedWords, 0, 128);
+	memset(reservedWords, 0, 128 * sizeof(hash_t));
 
-	for(int i = 0; i < 16; i++){
-		long int pos = 0;
-		pos = hashKey(vec[i].c_str());
-		reservedWords[pos] = vec[i].c_str();
-	}
+	long int pos = 0;
+
+	pos = hashKey("program");
+	reservedWords[pos].word = "program";
+	reservedWords[pos].token = PROGRAM;
+
+	pos = hashKey("begin");
+	reservedWords[pos].word = "begin";
+	reservedWords[pos].token = BEG;
+
+	pos = hashKey("end");
+	reservedWords[pos].word = "end";
+	reservedWords[pos].token = END;
+
+	pos = hashKey("const");
+	reservedWords[pos].word = "const";
+	reservedWords[pos].token = CONST;
+
+	pos = hashKey("real");
+	reservedWords[pos].word = "real";
+	reservedWords[pos].token = REAL;
+
+	pos = hashKey("integer");
+	reservedWords[pos].word = "integer";
+	reservedWords[pos].token = INTEGER;
+
+	pos = hashKey("procedure");
+	reservedWords[pos].word = "procedure";
+	reservedWords[pos].token = PROCEDURE;
+
+	pos = hashKey("else");
+	reservedWords[pos].word = "else";
+	reservedWords[pos].token = ELSE;
+
+	pos = hashKey("read");
+	reservedWords[pos].word = "read";
+	reservedWords[pos].token = READ;
+
+	pos = hashKey("write");
+	reservedWords[pos].word = "write";
+	reservedWords[pos].token = WRITE;
+
+	pos = hashKey("while");
+	reservedWords[pos].word = "while";
+	reservedWords[pos].token = WHILE;
+
+	pos = hashKey("do");
+	reservedWords[pos].word = "do";
+	reservedWords[pos].token = DO;
+
+	pos = hashKey("if");
+	reservedWords[pos].word = "if";
+	reservedWords[pos].token = IF;
+
+	pos = hashKey("then");
+	reservedWords[pos].word = "then";
+	reservedWords[pos].token = THEN;
+
+	pos = hashKey("for");
+	reservedWords[pos].word = "for";
+	reservedWords[pos].token = FOR;
+
 }
 
 //--- Exibir um erro
@@ -166,9 +243,14 @@ void errorFunc(string errorString, string errorVar){
 }
 //---
 
-bool checkReservedWord(string s){ //checar se eh uma palavra reservada
+bool checkReservedWord(string s, int *token){ //checar se eh uma palavra reservada
 	long int i = hashKey(s.c_str());
-	return (reservedWords[i].compare(s) == 0);	
+	if (reservedWords[i].word.compare(s) == 0){
+		*token = reservedWords[i].token;
+		return true;
+	}	
+
+	return false;
 }
 
 void checkCommentaryLines(string commentaryString){ //checa a quantidade de "\n"s no comentario de varias linhas (para nao perder a contagem de linhas)
@@ -199,21 +281,6 @@ bool checkNumberSize(string numberString, string numberType, int numberSize){
 		}
 	}
 	return true;
-}
-//---
-
-int main()
-{
-	initReservedWords();
-	while (token.compare("EOF") != 0){
-		yylex();
-		if(token.compare("EOF") != 0)
-			printf("%s - %s\n", yytext, token.c_str());
-	}
-
-	printf("\nNumero de linhas de codigo analizadas: %d\n", nLines); 
-	printf("\nNumero de erros lexicos encontrados: %d\n", nErrors); 
-	return 0;
 }
 
 //Compilar e Executar: 
