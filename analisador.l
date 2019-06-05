@@ -190,6 +190,10 @@ void initReservedWords(){
 	reservedWords[pos].word = "const";
 	reservedWords[pos].token = CONST;
 
+	pos = hashKey("var");
+	reservedWords[pos].word = "var";
+	reservedWords[pos].token = VAR;
+
 	pos = hashKey("real");
 	reservedWords[pos].word = "real";
 	reservedWords[pos].token = REAL;
