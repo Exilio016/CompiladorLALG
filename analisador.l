@@ -79,7 +79,7 @@ ERRO_NUMERO_REAL_MAL_FORMADO ({NUMERO}+{NUMERO_CARACTERES_NAO_PERMITIDOS}+"."{NU
 {ERRO_NUMERO_INTEIRO_MAL_FORMADO} {errorFunc("Numero inteiro mal formado.", yytext);}
 
 {NUMERO_INTEIRO} { 	if(checkNumberSize(yytext, "integer", yyleng)){
-						return NUMERO_INTEIRO;
+						return NUMERO_INT;
 					}
 				 } 
 {NUMERO_REAL} { if(checkNumberSize(yytext, "real", yyleng)){
