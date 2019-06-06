@@ -2,6 +2,7 @@
 #include<stdio.h>
 int yylex();
 void yyerror(const char *s);
+extern void initReservedWords();
 %}
 
 %token PROGRAM IDENT BEG END CONST VAR REAL INTEGER PROCEDURE ELSE READ WRITE WHILE DO IF THEN ATRIB DIF MAIOR_IGUAL MENOR_IGUAL NUMERO_INT NUMERO_REAL FOR
@@ -104,6 +105,7 @@ numero: NUMERO_INT
 %%
 
 int main(){
+  initReservedWords();
 	yyparse();
 }
 

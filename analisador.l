@@ -170,8 +170,6 @@ long int hashKey(const char *word){
 }
 
 void initReservedWords(){
-	memset(reservedWords, 0, 128 * sizeof(hash_t));
-
 	long int pos = 0;
 
 	pos = hashKey("program");
