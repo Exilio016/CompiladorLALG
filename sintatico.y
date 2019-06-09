@@ -1,8 +1,9 @@
 %{
-#include<stdio.h>
+#include <stdio.h>
 int yylex();
 void yyerror(const char *s);
 extern void initReservedWords();
+extern int nLines;
 %}
 
 %token PROGRAM IDENT BEG END CONST VAR REAL INTEGER PROCEDURE ELSE READ WRITE WHILE DO IF THEN ATRIB DIF MAIOR_IGUAL MENOR_IGUAL NUMERO_INT NUMERO_REAL FOR
@@ -57,12 +58,16 @@ pfalsa: ELSE cmd
 comandos: cmd ';' comandos 
         |
         ;
-cmd: READ '(' variaveis ')' 
-   | WRITE '(' variaveis ')' 
-   | WHILE '(' condicao ')' DO cmd 
-   | IF condicao THEN cmd pfalsa 
-   | IDENT ATRIB expressao 
-   | IDENT lista_arg 
+cmd: READ '(' variaveis ')' ';'
+   | READ error ')'  {yyerror("Comando READ mal formado");}
+   | WRITE '(' variaveis ')'
+   | WRITE error ')' {yyerror("Comando WRITE mal formado");}
+   | WHILE '(' condicao ')' DO cmd
+   | WHILE error DO cmd  {yyerror("Comando WHILE mal formado");}
+   | IF condicao THEN cmd pfalsa
+   | IF error THEN cmd pfalsa  {yyerror("Condicao de IF mal formada");}
+   | IDENT ATRIB expressao
+   | IDENT lista_arg
    | BEG comandos END
    ;
 condicao: expressao relacao expressao
@@ -110,5 +115,5 @@ int main(){
 }
 
 void yyerror(const char *s){
-  printf("%s\n", s);
+      printf("%s na linha %d\n", s, nLines);
 }
