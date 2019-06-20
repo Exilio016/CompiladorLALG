@@ -178,7 +178,7 @@ void initReservedWords(){
 
 	pos = hashKey("begin");
 	reservedWords[pos].word = "begin";
-	reservedWords[pos].token = BEG;
+	reservedWords[pos].token = BEGIN_;
 
 	pos = hashKey("end");
 	reservedWords[pos].word = "end";
