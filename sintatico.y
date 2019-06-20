@@ -77,7 +77,6 @@ dc_loc: dc_v
 lista_arg: '(' argumentos ')' 
          | error ')' {yyerrok;}
          | '(' error ')' {yyerrok;}
-         | error ')' {yyerrok;}
          |
          ;
 argumentos: IDENT mais_ident
