@@ -36,7 +36,7 @@ tipo_var: REAL
         | INTEGER
         ;
 variaveis: IDENT mais_var
-         | error mais_var {yyerrok; }
+          | error mais_var {yyerrok; }
          ;
 mais_var: ',' variaveis 
         | 
@@ -97,18 +97,34 @@ comandos: cmd ';' comandos
         |
         ;
 cmd: READ '(' variaveis ')'
-   | READ error ')'   {yyerrok;}
+   | READ error ')' {yyerrok;}
+   | READ '(' error ')' {yyerrok;}
    | WRITE '(' variaveis ')'
-   | WRITE error ')' ';' {yyerrok;}
+   | WRITE error ')' {yyerrok;}
+   | WRITE '(' error ')' {yyerrok;}
    | WHILE '(' condicao ')' DO cmd
+   | WHILE error ')' DO cmd {yyerrok;}
+   | WHILE '(' error ')' DO cmd {yyerrok;}
    | WHILE error DO cmd  {yyerrok;}
+   | WHILE error cmd {yyerrok;}
    | IF condicao THEN cmd pfalsa
    | IF error THEN cmd pfalsa  {yyerrok;}
+   | IF condicao THEN error pfalsa {yyerrok;}
+   | IF condicao error cmd pfalsa {yyerrok;}
    | IDENT ATRIB expressao
+   | IDENT error expressao {yyerrok;}
    | IDENT lista_arg
    | BEGIN_ comandos END
+   | BEGIN_ error END {yyerrok;}
+   | error ')' {yyerrok;}
+   | error END {yyerrok;}
+   | error DO cmd {yyerrok;}
+   | error THEN cmd {yyerrok;}
    ;
 condicao: expressao relacao expressao
+        | error relacao expressao {yyerrok;}
+        | expressao error expressao {yyerrok;}
+        | error expressao {yyerrok;}
         ;
 relacao: '=' 
        | DIF 
@@ -118,20 +134,29 @@ relacao: '='
        | '<'
        ;
 expressao: termo outros_termos
+         | error outros_termos {yyerrok;}
          ;
 op_un: '+' 
      | '-' 
      | 
      ;
 outros_termos: op_ad termo outros_termos 
+             | error termo outros_termos {yyerrok;}
+             | op_ad error outros_termos {yyerrok;}
              |
              ;
 op_ad: '+' 
      | '-'
      ;
 termo: op_un fator mais_fatores
+     | op_un error mais_fatores {yyerrok;}
+     | error fator mais_fatores {yyerrok;}
+     | error mais_fatores {yyerrok;}
      ;
 mais_fatores: op_mul fator mais_fatores 
+            | op_mul error mais_fatores {yyerrok;}
+            | error fator mais_fatores {yyerrok;}
+            | error mais_fatores {yyerrok;}
             |
             ;
 op_mul: '*' 
@@ -140,6 +165,8 @@ op_mul: '*'
 fator: IDENT 
      | numero 
      | '(' expressao ')'
+     | '(' error ')' {yyerrok;}
+     | error ')' {yyerrok;}
      ;
 numero: NUMERO_INT 
       | NUMERO_REAL
